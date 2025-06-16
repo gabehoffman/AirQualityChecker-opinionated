@@ -21,5 +21,12 @@ ABOUTME: Documents test setup challenges and solutions for future reference.
 - Use `unittest.mock.patch` for API mocking in Django tests.
 - Keep test output pristine and deterministic for CI and local runs.
 
+## Geocoding Regression and Test Coverage (June 2025)
+- Issue: Geocoding for well-known cities (e.g., Atlanta, GA, USA) failed due to incorrect use of both structured and free-text parameters in Nominatim API requests.
+- Root Cause: Nominatim returns a 400 error if both structured parameters (city, state, country) and the 'q' parameter are used together.
+- Solution: Refactored geocode_location to use only the 'q' parameter for all requests.
+- Regression Safety: Added a test (GeocodeKnownCitiesTests) to ensure geocoding works for five well-known cities (New York, Los Angeles, Chicago, London, Paris). This prevents silent failures for common locations and ensures future regressions are caught early.
+- Lesson: Always verify API parameter requirements and add regression tests for critical user-facing functionality.
+
 ---
 Add new journal entries here as new issues or insights arise.

@@ -1,0 +1,64 @@
+<!--
+ABOUTME: Template for the location input form.
+ABOUTME: Renders form fields, handles client-side validation, and displays submitted data.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Location Input</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2em; }
+        .form-group { margin-bottom: 1em; }
+        .errorlist { color: red; margin: 0 0 1em 0; }
+        .submitted { background: #e6ffe6; padding: 1em; margin-top: 1em; border: 1px solid #b2d8b2; }
+    </style>
+    <script>
+    function validateForm() {
+        var city = document.forms["locationForm"]["city"].value.trim();
+        var state = document.forms["locationForm"]["state"].value.trim();
+        var country = document.forms["locationForm"]["country"].value.trim();
+        var errors = [];
+        if (!city) errors.push("City is required.");
+        if (!state) errors.push("State/Province/Region is required.");
+        if (!country) document.forms["locationForm"]["country"].value = "USA";
+        var errorDiv = document.getElementById("client-errors");
+        errorDiv.innerHTML = errors.join("<br>");
+        return errors.length === 0;
+    }
+    </script>
+</head>
+<body>
+    <h1>Enter Location</h1>
+    <div id="client-errors" class="errorlist"></div>
+    <form name="locationForm" method="post" onsubmit="return validateForm();">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_city">City:</label>
+            {{ form.city }}
+        </div>
+        <div class="form-group">
+            <label for="id_state">State/Province/Region:</label>
+            {{ form.state }}
+        </div>
+        <div class="form-group">
+            <label for="id_country">Country:</label>
+            {{ form.country }}
+        </div>
+        {% if form.errors %}
+            <div class="errorlist">{{ form.errors }}</div>
+        {% endif %}
+        <button type="submit">Submit</button>
+    </form>
+    {% if submitted_data %}
+    <div class="submitted">
+        <h2>Submitted Data</h2>
+        <ul>
+            <li><strong>City:</strong> {{ submitted_data.city }}</li>
+            <li><strong>State/Province/Region:</strong> {{ submitted_data.state }}</li>
+            <li><strong>Country:</strong> {{ submitted_data.country }}</li>
+        </ul>
+    </div>
+    {% endif %}
+</body>
+</html>

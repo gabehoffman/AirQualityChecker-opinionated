@@ -28,5 +28,11 @@ ABOUTME: Documents test setup challenges and solutions for future reference.
 - Regression Safety: Added a test (GeocodeKnownCitiesTests) to ensure geocoding works for five well-known cities (New York, Los Angeles, Chicago, London, Paris). This prevents silent failures for common locations and ensures future regressions are caught early.
 - Lesson: Always verify API parameter requirements and add regression tests for critical user-facing functionality.
 
+## Open-Meteo Air Quality API Variable Bug (June 2025)
+- Issue: AQI fetch failed with a 400 error due to unsupported or derived variables in the 'hourly' parameter.
+- Root Cause: The Open-Meteo API only supports a specific set of variable names for the 'hourly' parameter (e.g., pm10, pm2_5, carbon_monoxide, nitrogen_dioxide, sulphur_dioxide, ozone, us_aqi). Including unsupported or derived variables (like main_pollutant, us_aqi_pm2_5, etc.) causes a hard failure.
+- Solution: Patched fetch_air_quality to use only supported variables in the 'hourly' parameter, per the official API documentation.
+- Lesson: Always consult and follow the latest API documentation for allowed parameter values, and add comments referencing the source.
+
 ---
 Add new journal entries here as new issues or insights arise.

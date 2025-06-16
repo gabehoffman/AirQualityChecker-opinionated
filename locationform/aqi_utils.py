@@ -37,13 +37,18 @@ def fetch_air_quality(lat: float, lon: float):
     params = {
         "latitude": lat,
         "longitude": lon,
-        "hourly": "us_aqi,pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone,us_aqi_pm2_5,us_aqi_pm10,us_aqi_o3,us_aqi_no2,us_aqi_so2,us_aqi_co,main_pollutant",
+        # Only supported variables per Open-Meteo docs
+        "hourly": "pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone,us_aqi",
         "timezone": "auto"
     }
     try:
         resp = requests.get(AIR_QUALITY_URL, params=params, timeout=10)
+        print(f"[DEBUG] AQI request URL: {resp.url}")
+        print(f"[DEBUG] AQI response status: {resp.status_code}")
+        print(f"[DEBUG] AQI response body: {resp.text}")
         resp.raise_for_status()
         data = resp.json()
         return data
-    except Exception:
+    except Exception as e:
+        print(f"[ERROR] AQI exception: {e}")
         return None

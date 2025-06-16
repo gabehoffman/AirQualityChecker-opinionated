@@ -5,6 +5,7 @@ ABOUTME: Validates form logic and view behavior for location input.
 from django.test import TestCase
 from .forms import LocationForm
 from django.urls import reverse
+from unittest.mock import patch
 
 class LocationFormTests(TestCase):
     def test_form_requires_city_and_state(self):
@@ -29,7 +30,17 @@ class LocationInputViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Enter Location')
 
-    def test_post_valid_data_shows_submitted(self):
+    @patch('locationform.views.geocode_location')
+    @patch('locationform.views.fetch_air_quality')
+    def test_post_valid_data_shows_submitted(self, mock_fetch, mock_geocode):
+        mock_geocode.return_value = {'lat': 41.88, 'lon': -87.63, 'display_name': 'Chicago, IL, USA'}
+        mock_fetch.return_value = {
+            'hourly': {
+                'us_aqi': [50],
+                'main_pollutant': ['pm10'],
+                'time': ['2025-06-16T12:00:00Z']
+            }
+        }
         response = self.client.post(reverse('location_input'), {
             'city': 'Chicago', 'state': 'IL', 'country': 'USA'
         })
@@ -44,3 +55,90 @@ class LocationInputViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'City is required.')
         self.assertContains(response, 'State/Province/Region is required.')
+
+"""
+ABOUTME: Unit and integration tests for AQI/geocoding utilities and view.
+ABOUTME: Validates error handling, API integration, and AQI display logic.
+"""
+from django.test import TestCase
+from django.urls import reverse
+from unittest.mock import patch
+from .aqi_utils import geocode_location, fetch_air_quality
+
+class AQIUtilsTests(TestCase):
+    @patch('locationform.aqi_utils.requests.get')
+    def test_geocode_location_success(self, mock_get):
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = [{
+            'lat': '42.36', 'lon': '-71.06', 'display_name': 'Boston, MA, USA'
+        }]
+        result = geocode_location('Boston', 'MA', 'USA')
+        self.assertIsNotNone(result)
+        self.assertEqual(result['lat'], 42.36)
+        self.assertEqual(result['lon'], -71.06)
+        self.assertIn('Boston', result['display_name'])
+
+    @patch('locationform.aqi_utils.requests.get')
+    def test_geocode_location_not_found(self, mock_get):
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = []
+        result = geocode_location('Nowhere', 'ZZ', 'USA')
+        self.assertIsNone(result)
+
+    @patch('locationform.aqi_utils.requests.get')
+    def test_fetch_air_quality_success(self, mock_get):
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = {
+            'hourly': {
+                'us_aqi': [42],
+                'main_pollutant': ['pm2_5'],
+                'time': ['2025-06-16T12:00:00Z']
+            }
+        }
+        result = fetch_air_quality(42.36, -71.06)
+        self.assertIn('hourly', result)
+        self.assertEqual(result['hourly']['us_aqi'][0], 42)
+
+    @patch('locationform.aqi_utils.requests.get')
+    def test_fetch_air_quality_api_error(self, mock_get):
+        mock_get.side_effect = Exception('API error')
+        result = fetch_air_quality(0, 0)
+        self.assertIsNone(result)
+
+class LocationInputViewAQITests(TestCase):
+    @patch('locationform.views.geocode_location')
+    @patch('locationform.views.fetch_air_quality')
+    def test_aqi_display_success(self, mock_fetch, mock_geocode):
+        mock_geocode.return_value = {'lat': 42.36, 'lon': -71.06, 'display_name': 'Boston, MA, USA'}
+        mock_fetch.return_value = {
+            'hourly': {
+                'us_aqi': [42],
+                'main_pollutant': ['pm2_5'],
+                'time': ['2025-06-16T12:00:00Z']
+            }
+        }
+        response = self.client.post(reverse('location_input'), {
+            'city': 'Boston', 'state': 'MA', 'country': 'USA'
+        })
+        self.assertContains(response, 'Air Quality Index (AQI)')
+        self.assertContains(response, '42')
+        self.assertContains(response, 'pm2_5')
+        self.assertContains(response, 'Boston, MA, USA')
+
+    @patch('locationform.views.geocode_location')
+    @patch('locationform.views.fetch_air_quality')
+    def test_aqi_api_error(self, mock_fetch, mock_geocode):
+        mock_geocode.return_value = {'lat': 42.36, 'lon': -71.06, 'display_name': 'Boston, MA, USA'}
+        mock_fetch.return_value = None
+        response = self.client.post(reverse('location_input'), {
+            'city': 'Boston', 'state': 'MA', 'country': 'USA'
+        })
+        self.assertContains(response, 'Could not fetch air quality data')
+
+    @patch('locationform.views.geocode_location')
+    def test_aqi_location_not_found(self, mock_geocode):
+        mock_geocode.return_value = None
+        response = self.client.post(reverse('location_input'), {
+            'city': 'Nowhere', 'state': 'ZZ', 'country': 'USA'
+        })
+        self.assertContains(response, 'Location not found')

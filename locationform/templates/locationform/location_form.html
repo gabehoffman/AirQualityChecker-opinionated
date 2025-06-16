@@ -1,6 +1,6 @@
 <!--
 ABOUTME: Template for the location input form.
-ABOUTME: Renders form fields, handles client-side validation, and displays submitted data.
+ABOUTME: Renders form fields, handles client-side validation, displays AQI and errors.
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -12,6 +12,7 @@ ABOUTME: Renders form fields, handles client-side validation, and displays submi
         .form-group { margin-bottom: 1em; }
         .errorlist { color: red; margin: 0 0 1em 0; }
         .submitted { background: #e6ffe6; padding: 1em; margin-top: 1em; border: 1px solid #b2d8b2; }
+        .aqi { background: #e6f0ff; padding: 1em; margin-top: 1em; border: 1px solid #b2c7d8; }
     </style>
     <script>
     function validateForm() {
@@ -50,6 +51,35 @@ ABOUTME: Renders form fields, handles client-side validation, and displays submi
         {% endif %}
         <button type="submit">Submit</button>
     </form>
+    {% if error %}
+        <div class="errorlist">{{ error }}</div>
+    {% endif %}
+    {% if aqi_data %}
+    <div class="aqi">
+        <h2>Air Quality Index (AQI)</h2>
+        <ul>
+            <li><strong>Location:</strong> {{ aqi_data.location }}</li>
+            <li><strong>Time:</strong> {{ aqi_data.time }}</li>
+            <li><strong>AQI:</strong> {{ aqi_data.aqi }}</li>
+            <li><strong>Main Pollutant:</strong> {{ aqi_data.main_pollutant }}</li>
+        </ul>
+        {% if aqi_data.aqi %}
+            {% if aqi_data.aqi <= 50 %}
+                <div>Good air quality. Minimal impact.</div>
+            {% elif aqi_data.aqi <= 100 %}
+                <div>Moderate air quality. Acceptable for most.</div>
+            {% elif aqi_data.aqi <= 150 %}
+                <div>Unhealthy for sensitive groups.</div>
+            {% elif aqi_data.aqi <= 200 %}
+                <div>Unhealthy. Health effects for everyone possible.</div>
+            {% elif aqi_data.aqi <= 300 %}
+                <div>Very unhealthy. Health warnings of emergency conditions.</div>
+            {% else %}
+                <div>Hazardous. Serious health effects for everyone.</div>
+            {% endif %}
+        {% endif %}
+    </div>
+    {% endif %}
     {% if submitted_data %}
     <div class="submitted">
         <h2>Submitted Data</h2>

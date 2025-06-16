@@ -1,0 +1,121 @@
+/*
+ABOUTME: Fox News inspired theme for Air Quality Checker web app.
+ABOUTME: Bold, high-contrast, patriotic color palette and headline style.
+*/
+body {
+    font-family: 'Roboto', Arial, sans-serif;
+    background: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+.header {
+    background: linear-gradient(90deg, #002868 0%, #bf0a30 100%);
+    color: #fff;
+    padding: 1.5em 0 1em 0;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    letter-spacing: 2px;
+}
+.headline {
+    font-size: 2.5em;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin: 0.2em 0 0.5em 0;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 6px #0008;
+}
+.subheadline {
+    font-size: 1.2em;
+    font-weight: 500;
+    color: #fff8;
+    margin-bottom: 1em;
+}
+.form-container {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px #00286822;
+    max-width: 480px;
+    margin: 2em auto;
+    padding: 2em 2.5em 1.5em 2.5em;
+    border-top: 6px solid #bf0a30;
+}
+.form-group label {
+    font-weight: bold;
+    color: #002868;
+}
+button[type="submit"] {
+    background: #bf0a30;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 0.7em 2em;
+    font-size: 1.1em;
+    font-weight: bold;
+    letter-spacing: 1px;
+    cursor: pointer;
+    margin-top: 1em;
+    box-shadow: 0 2px 6px #00286833;
+    transition: background 0.2s;
+}
+button[type="submit"]:hover {
+    background: #002868;
+}
+.errorlist {
+    color: #bf0a30;
+    background: #fff0f0;
+    border-left: 4px solid #bf0a30;
+    padding: 0.7em 1em;
+    margin: 1em 0;
+    border-radius: 4px;
+    font-weight: bold;
+}
+.aqi {
+    background: #e6f0ff;
+    border-left: 6px solid #002868;
+    margin: 2em auto 1em auto;
+    max-width: 480px;
+    padding: 1.5em 2em;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px #00286822;
+}
+.aqi h2 {
+    color: #bf0a30;
+    font-size: 1.5em;
+    margin-top: 0;
+}
+.aqi ul {
+    list-style: none;
+    padding: 0;
+}
+.aqi li {
+    margin-bottom: 0.5em;
+    font-size: 1.1em;
+}
+.aqi div {
+    font-weight: bold;
+    margin-top: 1em;
+    color: #002868;
+}
+.submitted {
+    background: #fff8e6;
+    border-left: 6px solid #bf0a30;
+    margin: 2em auto 1em auto;
+    max-width: 480px;
+    padding: 1.5em 2em;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px #bf0a3022;
+}
+.submitted h2 {
+    color: #002868;
+    font-size: 1.3em;
+    margin-top: 0;
+}
+@media (max-width: 600px) {
+    .form-container, .aqi, .submitted {
+        max-width: 98vw;
+        padding: 1em 0.5em;
+    }
+    .headline {
+        font-size: 1.5em;
+    }
+}

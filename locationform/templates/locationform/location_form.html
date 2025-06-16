@@ -7,12 +7,17 @@ ABOUTME: Renders form fields, handles client-side validation, displays AQI and e
 <head>
     <meta charset="UTF-8">
     <title>Location Input</title>
+    <link rel="stylesheet" href="/static/locationform/foxnews.css">
     <style>
         body { font-family: Arial, sans-serif; margin: 2em; }
         .form-group { margin-bottom: 1em; }
         .errorlist { color: red; margin: 0 0 1em 0; }
         .submitted { background: #e6ffe6; padding: 1em; margin-top: 1em; border: 1px solid #b2d8b2; }
         .aqi { background: #e6f0ff; padding: 1em; margin-top: 1em; border: 1px solid #b2c7d8; }
+        .header { text-align: center; margin-bottom: 2em; }
+        .headline { font-size: 2em; font-weight: bold; }
+        .subheadline { font-size: 1.2em; color: #555; }
+        .form-container { max-width: 600px; margin: 0 auto; padding: 2em; border: 1px solid #ccc; border-radius: 8px; background: #fff; }
     </style>
     <script>
     function validateForm() {
@@ -30,30 +35,36 @@ ABOUTME: Renders form fields, handles client-side validation, displays AQI and e
     </script>
 </head>
 <body>
-    <h1>Enter Location</h1>
-    <div id="client-errors" class="errorlist"></div>
-    <form name="locationForm" method="post" onsubmit="return validateForm();">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="id_city">City:</label>
-            {{ form.city }}
-        </div>
-        <div class="form-group">
-            <label for="id_state">State/Province/Region:</label>
-            {{ form.state }}
-        </div>
-        <div class="form-group">
-            <label for="id_country">Country:</label>
-            {{ form.country }}
-        </div>
-        {% if form.errors %}
-            <div class="errorlist">{{ form.errors }}</div>
+    <div class="header">
+        <div class="headline">Air Quality Checker</div>
+        <div class="subheadline">America's Trusted Source for Local Air Quality</div>
+    </div>
+    <div class="form-container">
+        <h1>Enter Location</h1>
+        <div id="client-errors" class="errorlist"></div>
+        <form name="locationForm" method="post" onsubmit="return validateForm();">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_city">City:</label>
+                {{ form.city }}
+            </div>
+            <div class="form-group">
+                <label for="id_state">State/Province/Region:</label>
+                {{ form.state }}
+            </div>
+            <div class="form-group">
+                <label for="id_country">Country:</label>
+                {{ form.country }}
+            </div>
+            {% if form.errors %}
+                <div class="errorlist">{{ form.errors }}</div>
+            {% endif %}
+            <button type="submit">Submit</button>
+        </form>
+        {% if error %}
+            <div class="errorlist">{{ error }}</div>
         {% endif %}
-        <button type="submit">Submit</button>
-    </form>
-    {% if error %}
-        <div class="errorlist">{{ error }}</div>
-    {% endif %}
+    </div>
     {% if aqi_data %}
     <div class="aqi">
         <h2>Air Quality Index (AQI)</h2>

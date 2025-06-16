@@ -157,3 +157,14 @@ class GeocodeKnownCitiesTests(TestCase):
             result = geocode_location(city, state, country)
             self.assertIsNotNone(result, f"Geocoding failed for {city}, {state}, {country}")
             self.assertIn(city.split()[0], result["display_name"], f"City name not in display_name for {city}")
+
+class AQIIntegrationTests(TestCase):
+    def test_fetch_air_quality_for_known_city(self):
+        # Atlanta, GA coordinates (from geocode)
+        lat, lon = 33.7544657, -84.3898151
+        result = fetch_air_quality(lat, lon)
+        self.assertIsNotNone(result, "AQI fetch failed for Atlanta, GA")
+        self.assertIn("hourly", result, "No 'hourly' key in AQI response")
+        self.assertIn("us_aqi", result["hourly"], "No 'us_aqi' in AQI response")
+        self.assertIn("pm10", result["hourly"], "No 'pm10' in AQI response")
+        self.assertIn("pm2_5", result["hourly"], "No 'pm2_5' in AQI response")

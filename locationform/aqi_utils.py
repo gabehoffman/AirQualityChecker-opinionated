@@ -10,16 +10,16 @@ AIR_QUALITY_URL = "https://air-quality-api.open-meteo.com/v1/air-quality"
 
 def geocode_location(city: str, state: str, country: str = "USA"):
     params = {
-        "city": city,
-        "state": state,
-        "country": country,
+        "q": f"{city}, {state}, {country}",
         "format": "json",
         "limit": 1,
     }
-    # Nominatim expects a single 'q' parameter for free text search
-    params["q"] = f"{city}, {state}, {country}"
     try:
         resp = requests.get(GEOCODE_URL, params=params, headers={"User-Agent": "AirQualityChecker/1.0"}, timeout=10)
+        # Optionally keep debug prints for now
+        print(f"[DEBUG] Geocode request URL: {resp.url}")
+        print(f"[DEBUG] Geocode response status: {resp.status_code}")
+        print(f"[DEBUG] Geocode response body: {resp.text}")
         resp.raise_for_status()
         data = resp.json()
         if not data:
@@ -29,7 +29,8 @@ def geocode_location(city: str, state: str, country: str = "USA"):
             "lon": float(data[0]["lon"]),
             "display_name": data[0]["display_name"]
         }
-    except Exception:
+    except Exception as e:
+        print(f"[ERROR] Geocode exception: {e}")
         return None
 
 def fetch_air_quality(lat: float, lon: float):

@@ -142,3 +142,18 @@ class LocationInputViewAQITests(TestCase):
             'city': 'Nowhere', 'state': 'ZZ', 'country': 'USA'
         })
         self.assertContains(response, 'Location not found')
+
+class GeocodeKnownCitiesTests(TestCase):
+    def test_geocode_known_cities(self):
+        # These are well-known cities that should always be found by Nominatim
+        cities = [
+            ("New York", "NY", "USA"),
+            ("Los Angeles", "CA", "USA"),
+            ("Chicago", "IL", "USA"),
+            ("London", "ENG", "UK"),
+            ("Paris", "IDF", "France"),
+        ]
+        for city, state, country in cities:
+            result = geocode_location(city, state, country)
+            self.assertIsNotNone(result, f"Geocoding failed for {city}, {state}, {country}")
+            self.assertIn(city.split()[0], result["display_name"], f"City name not in display_name for {city}")

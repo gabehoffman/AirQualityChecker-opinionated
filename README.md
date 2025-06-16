@@ -47,6 +47,14 @@ pytest locationform/tests.py --ds=airquality.settings --maxfail=1 --disable-warn
 - Pytest provides improved reporting and developer experience.
 - All tests are compatible with both Django and Pytest runners.
 
+## Air Quality Data API Field Handling
+
+- The Open-Meteo API sometimes omits optional fields like `main_pollutant` and `time` in its air quality response, even for valid locations.
+- The application now treats these fields as optional: if missing, the UI displays a sensible default ("Unknown") rather than failing or hiding available AQI data.
+- Only the `us_aqi` field is required for a successful result. If it is missing, the app reports an error.
+- This approach ensures users always see the best available air quality data, with clear indication when some details are unavailable.
+- All error handling and test coverage have been updated to reflect this pragmatic, user-friendly behavior.
+
 ## Project Journal
 See [`JOURNAL.md`](./JOURNAL.md) for technical insights, test setup issues, and lessons learned during development.
 

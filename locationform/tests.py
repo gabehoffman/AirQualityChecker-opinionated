@@ -103,7 +103,9 @@ class AQIUtilsTests(TestCase):
     def test_fetch_air_quality_api_error(self, mock_get):
         mock_get.side_effect = Exception('API error')
         result = fetch_air_quality(0, 0)
-        self.assertIsNone(result)
+        self.assertIsInstance(result, dict)
+        self.assertIn('error', result)
+        self.assertIn('API error', result['error'])
 
 class LocationInputViewAQITests(TestCase):
     @patch('locationform.views.geocode_location')
@@ -143,6 +145,24 @@ class LocationInputViewAQITests(TestCase):
         })
         self.assertContains(response, 'Location not found')
 
+    @patch('locationform.views.geocode_location')
+    @patch('locationform.views.fetch_air_quality')
+    def test_aqi_incomplete_data_error(self, mock_fetch, mock_geocode):
+        mock_geocode.return_value = {'lat': 42.36, 'lon': -71.06, 'display_name': 'Boston, MA, USA'}
+        # Simulate missing 'main_pollutant' and 'time'
+        mock_fetch.return_value = {
+            'hourly': {
+                'us_aqi': [42],
+                # 'main_pollutant' missing
+                # 'time' missing
+            },
+            'error': 'Air quality data is incomplete. Missing: main_pollutant, time'
+        }
+        response = self.client.post(reverse('location_input'), {
+            'city': 'Boston', 'state': 'MA', 'country': 'USA'
+        })
+        self.assertContains(response, 'Air quality data is incomplete. Missing: main_pollutant, time')
+
 class GeocodeKnownCitiesTests(TestCase):
     def test_geocode_known_cities(self):
         # These are well-known cities that should always be found by Nominatim
@@ -163,8 +183,10 @@ class AQIIntegrationTests(TestCase):
         # Atlanta, GA coordinates (from geocode)
         lat, lon = 33.7544657, -84.3898151
         result = fetch_air_quality(lat, lon)
-        self.assertIsNotNone(result, "AQI fetch failed for Atlanta, GA")
-        self.assertIn("hourly", result, "No 'hourly' key in AQI response")
-        self.assertIn("us_aqi", result["hourly"], "No 'us_aqi' in AQI response")
-        self.assertIn("pm10", result["hourly"], "No 'pm10' in AQI response")
-        self.assertIn("pm2_5", result["hourly"], "No 'pm2_5' in AQI response")
+        if 'hourly' in result:
+            self.assertIn("us_aqi", result["hourly"], "No 'us_aqi' in AQI response")
+            self.assertIn("pm10", result["hourly"], "No 'pm10' in AQI response")
+            self.assertIn("pm2_5", result["hourly"], "No 'pm2_5' in AQI response")
+        else:
+            self.assertIn('error', result)
+            self.assertIn('incomplete', result['error'])

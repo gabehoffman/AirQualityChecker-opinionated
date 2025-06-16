@@ -27,7 +27,15 @@ def location_input(request):
                 submitted_data = None
             else:
                 aqi_raw = fetch_air_quality(geo['lat'], geo['lon'])
-                if not aqi_raw or 'hourly' not in aqi_raw:
+                if not aqi_raw:
+                    error = 'Could not fetch air quality data. Please try again later.'
+                    aqi_data = None
+                    show_submitted = False
+                elif 'error' in aqi_raw:
+                    error = aqi_raw['error']
+                    aqi_data = None
+                    show_submitted = False
+                elif 'hourly' not in aqi_raw:
                     error = 'Could not fetch air quality data. Please try again later.'
                     aqi_data = None
                     show_submitted = False

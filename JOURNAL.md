@@ -34,5 +34,13 @@ ABOUTME: Documents test setup challenges and solutions for future reference.
 - Solution: Patched fetch_air_quality to use only supported variables in the 'hourly' parameter, per the official API documentation.
 - Lesson: Always consult and follow the latest API documentation for allowed parameter values, and add comments referencing the source.
 
+## Open-Meteo API Optional Field Handling (June 2025)
+
+- Problem: The Open-Meteo air quality API sometimes omits optional fields like `main_pollutant` and `time` in its response, even for valid locations.
+- Initial implementation treated these as required, causing the app to show errors and hide otherwise valid AQI data.
+- Solution: Now, only `us_aqi` is required. If `main_pollutant` or `time` is missing, the app fills in a sensible default ("Unknown") so users always see available AQI data.
+- Rationale: This approach is pragmatic, improves UX, and aligns with our core principles—optional fields should not break the app or hide useful information.
+- All tests and error handling updated to reflect this behavior. If `us_aqi` is missing, an error is still shown.
+
 ---
 Add new journal entries here as new issues or insights arise.

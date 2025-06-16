@@ -48,7 +48,16 @@ def fetch_air_quality(lat: float, lon: float):
         print(f"[DEBUG] AQI response body: {resp.text}")
         resp.raise_for_status()
         data = resp.json()
+        # Only require 'us_aqi' to be present and non-empty
+        if "hourly" not in data or "us_aqi" not in data["hourly"] or not data["hourly"]["us_aqi"]:
+            raise ValueError("Air quality data is incomplete. Missing: us_aqi")
+        # Fill in optional fields with defaults if missing
+        for field in ["main_pollutant", "time"]:
+            if field not in data["hourly"] or not data["hourly"][field]:
+                # Fill with 'Unknown' or a list of 'Unknown' matching us_aqi length
+                n = len(data["hourly"]["us_aqi"])
+                data["hourly"][field] = ["Unknown"] * n
         return data
     except Exception as e:
         print(f"[ERROR] AQI exception: {e}")
-        return None
+        return {"error": str(e)}

@@ -39,6 +39,17 @@ Run all tests with:
 python manage.py test
 ```
 
+### Pytest Support
+This project supports running tests with [pytest](https://docs.pytest.org/) and [pytest-django](https://pytest-django.readthedocs.io/):
+```sh
+pytest locationform/tests.py --ds=airquality.settings --maxfail=1 --disable-warnings -v
+```
+- Pytest provides improved reporting and developer experience.
+- All tests are compatible with both Django and Pytest runners.
+
+## Project Journal
+See [`JOURNAL.md`](./JOURNAL.md) for technical insights, test setup issues, and lessons learned during development.
+
 ## Project Structure
 - `airquality/` – Django project settings and configuration
 - `locationform/` – App for the location input form and related logic
